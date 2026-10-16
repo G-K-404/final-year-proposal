@@ -1,0 +1,292 @@
+# Machine Safety Profiles (MSP) - input to design_calcs.py
+#
+# Every machine class gets its own profile. design_calcs.py turns a profile into
+#   (1) speed-adaptive stop / warning / awareness zone sizes,
+#   (2) exact sensor coordinates (from the placement rules of the profile's `kit`),
+#   (3) coverage checks.
+#
+# VALUES ARE REPRESENTATIVE OF EACH CLASS, NOT OF A SPECIFIC SCCL MACHINE.
+# Before installation, replace length/width/height, speeds, braking and grades
+# with the OEM data sheet + the mine's traffic SOP, then re-run the script.
+#
+# Body frame (all sensor coordinates): origin = centre of the machine footprint at
+# ground level, x = forward, y = left, z = up (ISO 8855 style). Units: metres.
+# For swing machines the frame is the rotating house, origin = swing centre.
+
+[defaults]
+t_sys_s        = 0.3   # sensing + comms + decision + alarm actuation budget (s)
+t_react_s      = 1.5   # alerted operator perception-reaction time (s)
+t_warn_extra_s = 2.0   # warning issued this much earlier than the stop boundary (s)
+t_aware_extra_s = 3.0  # awareness band beyond the warning boundary (s)
+v_ped_mps      = 1.5   # worst-case pedestrian walking toward the machine path (m/s)
+sigma_pos_m    = 0.25  # 1-sigma relative position error inside 10 m (design target)
+k_sigma        = 2.0   # uncertainty inflation (Jobes et al.: position = circle, not point)
+buffer_m       = 1.0   # fixed buffer: mirrors, overhangs, tag-on-helmet vs body extent
+g              = 9.81
+
+# ----------------------------------------------------------------------------- surface
+
+[[machine]]
+id = "RDT100"
+name = "Rear dump truck, ~100 t class"
+domain = "surface"
+kit = "haul"
+length_m = 10.3
+width_m = 6.1
+height_m = 5.0          # top of canopy
+body_height_m = 4.2     # treated as a solid obstacle for radio line-of-sight
+cab_side = "left"       # blind side is the opposite side (NIOSH RI 9672, Fig. A.3)
+v_fwd_kmh = 30
+v_rev_kmh = 10
+a_brake_mps2 = 2.0      # loaded, service brake, dry haul road
+design_grade = 0.0625   # 1 in 16 downgrade (check site haul-road SOP)
+tag_height_m = 1.7
+
+[[machine]]
+id = "RDT60"
+name = "Rear dump truck, ~60 t class"
+domain = "surface"
+kit = "haul"
+length_m = 9.0
+width_m = 4.9
+height_m = 4.4
+body_height_m = 3.8
+cab_side = "left"
+v_fwd_kmh = 30
+v_rev_kmh = 10
+a_brake_mps2 = 2.2
+design_grade = 0.0625
+tag_height_m = 1.7
+
+[[machine]]
+id = "WTR28"
+name = "Water sprinkler / tanker, ~28 kL"
+domain = "surface"
+kit = "haul"
+length_m = 9.6
+width_m = 3.6
+height_m = 3.9
+body_height_m = 3.4
+cab_side = "left"
+v_fwd_kmh = 25
+v_rev_kmh = 8
+a_brake_mps2 = 2.0
+design_grade = 0.0625
+tag_height_m = 1.7
+
+[[machine]]
+id = "GRD"
+name = "Motor grader"
+domain = "surface"
+kit = "haul"
+length_m = 10.0
+width_m = 3.0
+height_m = 3.4
+body_height_m = 2.8
+cab_side = "centre"
+v_fwd_kmh = 20
+v_rev_kmh = 15
+a_brake_mps2 = 2.5
+design_grade = 0.0625
+tag_height_m = 1.7
+
+[[machine]]
+id = "HEX"
+name = "Hydraulic excavator / shovel, ~200 t"
+domain = "surface"
+kit = "swing"
+length_m = 7.0          # undercarriage (track) length
+width_m = 5.5           # house width
+height_m = 7.0          # cab roof
+body_height_m = 4.0     # house / counterweight top
+cab_side = "left"
+tail_swing_radius_m = 5.6
+swing_rpm = 4.0
+swing_decel_rad_s2 = 0.4
+v_fwd_kmh = 2.5         # travel speed
+v_rev_kmh = 2.5
+a_brake_mps2 = 1.0
+design_grade = 0.0
+tag_height_m = 1.7
+
+[[machine]]
+id = "DOZ"
+name = "Crawler dozer, D375 class"
+domain = "surface"
+kit = "tracked"
+length_m = 9.5          # including ripper
+width_m = 4.3           # blade width
+height_m = 4.0
+body_height_m = 3.2
+cab_side = "centre"
+v_fwd_kmh = 11
+v_rev_kmh = 14          # dozers reverse faster than they go forward
+a_brake_mps2 = 2.5
+design_grade = 0.10
+tag_height_m = 1.7
+
+[[machine]]
+id = "FEL"
+name = "Wheel loader (articulated), 5-6 m3"
+domain = "surface"
+kit = "artic"
+length_m = 9.2
+width_m = 3.3
+height_m = 3.6
+body_height_m = 3.0
+cab_side = "centre"
+joint_x_m = 0.0
+v_fwd_kmh = 20
+v_rev_kmh = 15
+a_brake_mps2 = 2.5
+design_grade = 0.0625
+tag_height_m = 1.7
+
+[[machine]]
+id = "BHL"
+name = "Backhoe loader (JCB 3DX class)"
+domain = "surface"
+kit = "bhl"
+length_m = 5.9
+width_m = 2.35
+height_m = 3.6
+body_height_m = 2.6
+cab_side = "centre"
+backhoe_reach_m = 5.5
+v_fwd_kmh = 20
+v_rev_kmh = 10
+a_brake_mps2 = 3.0
+design_grade = 0.0625
+tag_height_m = 1.7
+
+[[machine]]
+id = "DRL"
+name = "Blast-hole drill (crawler)"
+domain = "surface"
+kit = "drill"
+length_m = 9.0
+width_m = 4.5
+height_m = 4.5          # mast lowered
+body_height_m = 3.2
+cab_side = "left"
+v_fwd_kmh = 2.5
+v_rev_kmh = 2.5
+a_brake_mps2 = 1.5
+design_grade = 0.0625
+tag_height_m = 1.7
+
+[[machine]]
+id = "LMV"
+name = "Light motor vehicle (jeep / pickup)"
+domain = "surface"
+kit = "lmv"
+length_m = 4.4
+width_m = 1.75
+height_m = 1.9
+body_height_m = 1.9
+cab_side = "right"      # Indian right-hand drive
+v_fwd_kmh = 40
+v_rev_kmh = 10
+a_brake_mps2 = 4.5
+design_grade = 0.0625
+tag_height_m = 1.7
+
+# ----------------------------------------------------------------------------- underground
+
+[[machine]]
+id = "LHD"
+name = "Load-haul-dump (articulated), ~3 m3"
+domain = "underground"
+kit = "artic"
+length_m = 9.0
+width_m = 2.2
+height_m = 2.1
+body_height_m = 1.9
+cab_side = "left"
+joint_x_m = 0.4
+v_fwd_kmh = 12
+v_rev_kmh = 12
+a_brake_mps2 = 2.5
+design_grade = 0.10
+tag_height_m = 1.5
+
+[[machine]]
+id = "SDL"
+name = "Side discharge loader"
+domain = "underground"
+kit = "rigid_ug"
+length_m = 6.5
+width_m = 1.85
+height_m = 1.45
+body_height_m = 1.4
+cab_side = "left"
+v_fwd_kmh = 6
+v_rev_kmh = 6
+a_brake_mps2 = 2.0
+design_grade = 0.10
+tag_height_m = 1.5
+
+[[machine]]
+id = "CM"
+name = "Continuous miner (remote controlled)"
+domain = "underground"
+kit = "cm"
+length_m = 11.0
+width_m = 3.3
+height_m = 1.9
+body_height_m = 1.8
+cab_side = "none"
+v_fwd_kmh = 1.5
+v_rev_kmh = 1.5
+a_brake_mps2 = 1.0
+design_grade = 0.05
+tag_height_m = 1.5
+
+[[machine]]
+id = "SC"
+name = "Shuttle car (bidirectional)"
+domain = "underground"
+kit = "bidir"
+length_m = 8.5
+width_m = 3.0
+height_m = 1.5
+body_height_m = 1.4
+cab_side = "left"
+v_fwd_kmh = 8
+v_rev_kmh = 8
+a_brake_mps2 = 2.0
+design_grade = 0.05
+tag_height_m = 1.5
+
+[[machine]]
+id = "LOCO"
+name = "Battery locomotive (8 t) hauling tubs"
+domain = "underground"
+kit = "rail"
+length_m = 4.5
+width_m = 1.1
+height_m = 1.6
+body_height_m = 1.5
+cab_side = "left"
+train_length_m = 45.0
+v_fwd_kmh = 10
+v_rev_kmh = 10
+a_brake_mps2 = 0.8      # steel wheel on rail, loaded train
+design_grade = 0.0125   # 1 in 80
+tag_height_m = 1.5
+
+[[machine]]
+id = "UPC"
+name = "Underground personnel / utility carrier"
+domain = "underground"
+kit = "lmv"
+length_m = 5.0
+width_m = 1.9
+height_m = 1.9
+body_height_m = 1.8
+cab_side = "left"
+v_fwd_kmh = 20
+v_rev_kmh = 8
+a_brake_mps2 = 3.5
+design_grade = 0.10
+tag_height_m = 1.5
