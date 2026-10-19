@@ -162,6 +162,9 @@ yet verified.
 | S15 | Shift-change crowd (60 tags) around a machine | No missed DANGER fixes; latency ≤ 200 ms |
 | S16 | Jamming of 865 MHz and UWB | Fault alarms; LF still protects; conservative mode |
 
+S01–S03, S05, S06 and S08 are run with datasheet models of the exact parts (DWM3000, AS3932, AWR1843AOP,
+ZED-F9P, SX1262) in [13](13_component_simulation.md), with results and the list of KPIs to measure.
+
 ## 7. Validation phases and KPIs
 
 | Phase | Where | Exit criterion |

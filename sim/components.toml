@@ -1,0 +1,270 @@
+# Component database for the market-sensor simulation (sim/run_all.py)
+#
+# Every number in a part table is copied from the datasheet named in `ref`
+# (see docs/12_references.md, keys D1-D13), with the table it came from.
+# Numbers that do NOT come from a datasheet live in [assumptions] at the end,
+# each with its basis. Replace assumptions with bench measurements as the
+# prototype work proceeds, then re-run the simulation.
+
+# ------------------------------------------------------------------ V2P / V2V
+
+[uwb]                              # helmet tag + machine-hull anchors + VTU
+part = "Qorvo DWM3000 module (DW3110 IC)"
+ref = "D1 (DWM3000 Data Sheet Rev B, May 2021), D2 (DW3000 Datasheet v1.1, 2020)"
+channel = 5
+fc_mhz = 6489.6                    # D1 Table 6
+bw_mhz = 499.2                     # D2 Table 16
+tx_psd_dbm_per_mhz = -41.3         # D1 s.2: max PSD for most regions; India UWB rules [E4] same value
+sens_dbm_850k = -100.0             # D2 Table 8: CH5, 850 kb/s, PSR 1024, 1% PER
+sens_dbm_6m8 = -94.3               # D2 Table 8: CH5, 6.8 Mb/s, PSR 64, STS 64, 1% PER
+link_budget_db_6m8 = 89            # D2 Table 12: CH5, 6.8 Mb/s, 12 B data (includes 9 dB gating gain), 0 dBi antennas
+link_budget_db_850k = 86           # D2 Table 12: CH5, 850 kb/s, PSR 1024
+ranging_accuracy_m = 0.06          # D2 Table 14: +/-6 cm LOS after antenna-delay calibration
+ranging_accuracy_uncal_m = 0.15    # D2 Table 14 note 1: about +/-15 cm without calibration
+ranging_std_m = 0.015              # D2 Table 14: ranging standard deviation 1.5 cm ...
+ranging_std_ref_dbm = -85.0        # ... measured at -85 dBm
+i_tx_ma = 40.0                     # D1 Table 5: CH5 TX, 3.3 V
+i_rx_ma = 50.0                     # D1 Table 5: CH5 RX, no frames received
+i_idle_ma = 12.0                   # D1 Table 5: CH5 IDLE
+i_init_ma = 6.0                    # D1 Table 5: CH5 INIT
+i_deepsleep_ua = 0.26              # D1 Table 5: DEEP SLEEP 260 nA
+wake_ms = 1.0                      # D2 Table 10 note: ~1000 us start-up incl. AON download
+
+[lf]                               # 3-D wake-up receiver in the personal unit; 125 kHz coils on the hull
+part = "ams AS3932 3-D LF wake-up receiver (110-150 kHz)"
+ref = "D3 (AS3932 datasheet v1-83, 2015-03-02)"
+f_khz = 125.0
+sens_uvrms = 100.0                 # D3 Fig. 11 SENS: 125 kHz, default mode
+i_listen_3ch_ua = 5.7              # D3 Fig. 11 I3CHRC typ (max 8.3)
+i_scan_3ch_ua = 2.7                # D3 Fig. 11 I3CHSCRC (scanning mode)
+i_onoff_11pct_ua = 1.7             # D3 Fig. 11 I3CHOORC, 11% duty cycle
+i_data_ua = 8.3                    # D3 Fig. 11 IDATA, 125 kHz, 1 kb/s
+symbol_rate_sps = 2184             # D3 Fig. 35, R3<2:0> = 001 (Manchester symbols/s)
+preamble_min_ms = 1.55             # D3 Fig. 36, R3<5:3> = 010
+settle_us = 250                    # D3 Fig. 11 TSAMP amplifier settling time
+pattern_bits = 16                  # D3: 16-bit Manchester wake-up pattern
+
+[radar_awr1843aop]                 # rear radar, untagged-person layer (pilot: one rear unit)
+part = "TI AWR1843AOP (76-81 GHz, antennas on package)"
+ref = "D4 (TI SWRS236C)"
+f_ghz = 77.0
+eirp_dbm = 16.0                    # D4 s.1 and RF spec: single-transmitter EIRP
+einf_db = 10.0                     # D4 s.1: RX effective isotropic noise figure, 76-81 GHz
+if_bw_mhz = 10.0                   # D4 RF spec: IF bandwidth
+adc_complex_msps = 12.5            # D4 RF spec: ADC sampling rate (complex 1x)
+ramp_mhz_per_us = 100.0            # D4 RF spec: ramp rate
+beam_half_deg = 60.0               # D4 RF spec: RX antenna 8 dB beamwidth +/-60 deg
+n_tx = 3
+n_rx = 4
+
+[radar_iwr6843aop]                 # short-range side radar option (60 GHz: check WPC status first)
+part = "TI IWR6843AOP (60-64 GHz, antennas on package)"
+ref = "D5 (TI SWRS237C)"
+f_ghz = 62.0
+eirp_dbm = 16.0                    # D5 RF spec (revision C raised it from 15 dBm)
+einf_db = 9.0                      # D5 RF spec: EINF, 60-64 GHz
+if_bw_mhz = 10.0
+adc_complex_msps = 12.5
+ramp_mhz_per_us = 250.0
+beam_half_deg = 60.0               # assumed equal to the AWR1843AOP pattern (not stated in D5 text)
+n_tx = 3
+n_rx = 4
+
+[radar_ars408]                     # commercial module, used as a comparison for the TI AOP chip
+part = "Continental ARS 408-21 (76-77 GHz)"
+ref = "D6 (data sheet 091018_FS_ARS_408_21_EN_HS)"
+cycle_ms = 72                      # D6: approx. 72 ms near and far measurement
+far_range_m = 250.0                # D6: 0.20-250 m far range, +/-9 deg
+far_half_deg = 9.0
+near_range_m = 70.0                # D6: 0.20-70 m near range @ 0..+/-45 deg (100 m on boresight)
+near_half_deg = 45.0
+near_edge_range_m = 20.0           # D6: 0.20-20 m @ +/-60 deg
+near_edge_half_deg = 60.0
+range_acc_near_m = 0.10            # D6: +/-0.10 m near range (point targets, no tracking)
+az_acc_near_deg = [0.3, 1.0, 5.0]  # D6: +/-0.3 deg @0, +/-1 deg @45, +/-5 deg @60 (near range)
+power_w = 6.6                      # D6: 6.6 W typ
+
+[gnss]                             # machine and LMV pose for V2V
+part = "u-blox ZED-F9P-04B"
+ref = "D7 (UBX-21044850 R01, 21-Dec-2021)"
+cep_pvt_m = 1.5                    # D7 Table 2: PVT horizontal accuracy (CEP)
+cep_sbas_m = 1.0                   # D7 Table 2: SBAS
+cep_rtk_m = 0.01                   # D7 Table 2: RTK 0.01 m ...
+rtk_ppm = 1.0                      # ... + 1 ppm of baseline (CEP)
+rtk_convergence_s = 10             # D7 Table 1: < 10 s
+rate_rtk_hz = 7                    # D7 Table 1: RTK, GPS+GLO+GAL+BDS
+rate_pvt_hz = 9                    # D7 Table 1: PVT, GPS+GLO+GAL+BDS
+vel_acc_mps = 0.05                 # D7 s.1.2: velocity accuracy
+heading_acc_deg = 0.3              # D7 s.1.2: dynamic heading accuracy
+
+[subghz]                           # V2V beacons, Guardian relay, wearable telemetry
+part = "Semtech SX1262"
+ref = "D8 (SX1261/2 Data Sheet Rev 1.2, June 2019)"
+f_mhz = 866.0
+tx_dbm = 14.0                      # India practice in this design (docs/01 s.4.1); chip max +22 dBm (D8)
+sens_lora_sf7_bw125 = -124.0       # D8 Table 3-8 RXS_LB, Rx boosted
+sens_lora_sf12_bw125 = -137.0      # D8 Table 3-8
+sens_gfsk_38k4 = -109.0            # D8 Table 3-8 RXS_2FB: 38.4 kb/s, FDA 40 kHz, BW 160 kHz (fits India's 200 kHz limit)
+sens_gfsk_4k8 = -118.0             # D8 Table 3-8 RXS_2FB: 4.8 kb/s
+lora_snr_req_db = { "7" = -7.5, "8" = -10.0, "9" = -12.5, "10" = -15.0, "11" = -17.5, "12" = -20.0 }  # Semtech demodulator floors (AN1200.13 [E18])
+i_tx_14dbm_ma = 45.0               # D8 Table 3-5: +14 dBm, optimal settings, 868/915 MHz
+i_rx_ma = 4.6                      # D8 Table 3-5: LoRa 125 kHz, DC-DC
+i_sleep_warm_ua = 0.6              # D8 Table 3-5: SLEEP, configuration retained
+ccr_lora_sf7_db = 5.0              # D8: co-channel rejection, LoRa SF7 (CW interferer)
+blocking_1mhz_db = 88.0            # D8 overview / product page: blocking immunity at 1 MHz offset
+
+# ------------------------------------------------------------------ attendance (biometric + helmet)
+
+[rfid_reader]                      # gate reader for the helmet tag (also the RFID baseline on a truck)
+part = "Impinj R700 (IPJ-R700-241, ETSI/India variant)"
+ref = "D9 (Impinj R700 datasheet v4.1, 2021-07-15; distributor listing)"
+tx_max_dbm_poe = 30.0              # D9: +30 dBm on PoE
+tx_max_dbm_poeplus = 33.0          # D9: +33 dBm on PoE+
+rx_sens_dbm = -92.0                # D9: -92 dBm max (newer listings: -93 dBm)
+reads_per_s = 1100                 # D9 listing: up to 1,100 reads/s
+f_mhz = 866.0                      # India 865-867 MHz: 1 W transmitter, 4 W ERP [E5]
+erp_limit_dbm = 36.0               # 4 W ERP [E5]
+
+[rfid_tag]                         # passive UHF inlay moulded into the helmet shell
+part = "Impinj M730 tag chip (Gen2v2)"
+ref = "D10 (Impinj M700 series datasheet v6.4, 2024)"
+read_sens_dbm = -24.0              # D10: read sensitivity up to -24 dBm (dipole antenna)
+write_sens_dbm = -21.0             # D10
+
+[fp_r503]                          # gate fingerprint reader, 1:1 / 1:few verification
+part = "Hangzhou Grow R503 capacitive fingerprint module"
+ref = "D11 (R503 user manual v1.1, 2019-06)"
+far = 1.0e-5                       # D11: FAR < 0.001 %
+frr = 0.01                         # D11: FRR < 1 %
+capture_s = 0.2                    # D11: image acquiring time < 0.2 s
+feature_s = 0.5                    # D11: generate feature point time < 500 ms
+capacity = 200                     # D11: storage capacity 200 templates
+i_work_ma = 20.0                   # D11: working current (fingerprint acquisition)
+i_standby_ua = 2.0                 # D11: standby (finger detection) average
+temp_min_c = -20
+temp_max_c = 60                    # D11: working temperature -20 to +60 C, RH 10-85 %
+
+[fp_gt521f52]                      # 1:N identification module (baseline attendance terminal)
+part = "ADH-Tech GT-521F52 optical fingerprint module"
+ref = "D12 (GT-521F series datasheet v1.6)"
+far = 1.0e-5                       # D12: FAR < 0.001 %
+frr = 0.001                        # D12: FRR < 0.1 %
+identify_s = 1.5                   # D12: identification time < 1.5 s
+enrol_s = 3.0                      # D12: enrolment < 3 s (3 fingerprints)
+capacity = 3000                    # D12: 3000 fingerprints (GT-521F52)
+i_work_ma = 130.0                  # D12: < 130 mA
+
+[cap_sensor]                       # helmet-worn detection: electrode in the sweatband
+part = "TI FDC1004 capacitance-to-digital converter"
+ref = "D13 (TI SNOSCY5C)"
+range_pf = 15.0                    # D13: input range +/-15 pF
+offset_max_pf = 100.0              # D13: max offset capacitance (CAPDAC)
+resolution_ff = 0.5                # D13: measurement resolution 0.5 fF
+noise_af_rthz = 33.2               # D13: output noise 33.2 aF/sqrt(Hz) at 100 S/s
+rate_sps = 100                     # D13: programmable 100 / 200 / 400 S/s
+abs_error_ff = 6.0                 # D13: absolute error after offset calibration +/-6 fF
+drift_ff = 30.0                    # D13: CAPDAC offset drift over -40..125 C
+i_active_ua = 750.0                # D13: active
+i_standby_ua = 29.0                # D13: standby
+
+# ------------------------------------------------------------------ not from a datasheet
+
+[assumptions]
+# Targets and channels
+person_rcs_dbsm = -8.0             # mean human RCS at 76 GHz (Yamada, via Schubert 2013 [E27]); +/-10 dB spread
+person_rcs_side_db = -5.0          # side aspect 5 dB below front/back [E27]
+rcs_posture_db = { standing = 0.0, bending = -1.0, crouching = -3.0, lying = -6.0 }   # assumed
+clutter_rcs_dbsm = [0.0, 10.0]     # rocks / berm segments behind the truck (uniform), assumed
+clutter_mean_count = 4.0           # Poisson mean per reversing manoeuvre, assumed
+clutter_known_fraction = 0.8       # share of static clutter already in the twin's static map (docs/06 s.6)
+radar_loss_db = 8.0                # radome + dust film 2, windowing/processing 3, implementation 3 (assumed)
+radar_pfa = 1.0e-6                 # CFAR false-alarm probability per cell
+radar_frame_ms = 50.0
+radar_slope_mhz_per_us = 20.0      # chirp: 20 MHz/us x 30 us = 600 MHz, fs 10 Msps -> R_max 75 m
+radar_tc_us = 30.0
+radar_fs_msps = 10.0
+radar_chirps = 192                 # 3 TX x 64 loops per frame
+radar_az_sigma_deg = 2.5           # angle noise of a 12-element virtual array at detection SNR
+radar_range_sigma_m = 0.10
+radar_confirm = [3, 5]             # M-of-N track confirmation
+classifier_acc = 0.976             # micro-Doppler person/object CNN [P11]
+classifier_dwell_s = 0.5
+ars408_ref_rcs_dbsm = 10.0         # datasheet ranges assumed quoted for a passenger car
+
+uwb_shadow_db = 3.0                # log-normal shadowing per exchange, open pit
+uwb_body_loss_db = 12.0            # body between helmet antenna and anchor at 6.5 GHz
+uwb_nlos_bias_mean_m = 0.8         # exponential NLOS bias (docs/10 s.2.3 default; replace with eWINE / site fit)
+uwb_nlos_sigma_m = 0.25
+uwb_p_body_nlos = { standing = 0.05, bending = 0.30, crouching = 0.40, lying = 0.60 }
+uwb_vehicle_limit_dbm_per_mhz = -53.3   # India exterior limit for vehicle-mounted UWB without LDC/TPC [E4]
+uwb_rates_hz = { aware = 1.0, warning = 10.0, danger = 20.0 }  # docs/05 s.3, docs/06 s.11
+uwb_blink_s = 1.0                  # discovery blink period outside a session
+tag_height_m = { standing = 1.75, bending = 1.25, crouching = 0.95, lying = 0.30 }
+
+lf_r_on_m = { front = 6.0, rear = 6.0, side = 4.5 }   # on-axis shell radius set by coil current
+lf_r_on_keyon_m = { front = 8.0, rear = 8.0, side = 6.0 }   # full-power sweep at key-on (docs/06 s.12)
+lf_sigma_db = 1.5                  # +/-3 dB field error (docs/03 s.4)
+lf_uplink_ms = [10.0, 60.0]        # LF hit reported back over UWB frame / sub-GHz (uniform)
+
+rfid_ant_gain_dbic = 6.0           # circular-polarised panel antenna (gate and truck baseline)
+rfid_ant_half_deg = 35.0           # 3 dB half-beamwidth of that panel
+rfid_cable_db = 1.0
+rfid_pol_loss_db = 3.0             # circular reader -> linear tag
+rfid_tag_gain_dbi = -3.0           # inlay detuned by the helmet shell and head
+rfid_body_loss_db = 10.0           # tag on the far side of the head/body from the reader
+rfid_mod_loss_db = 6.0             # backscatter modulation loss
+rfid_shadow_db = 3.0
+rfid_round_ms = 25.0               # one inventory round with a few tags in the field
+
+subghz_ant_gain_dbi = 2.0
+subghz_cable_db = 1.0
+pl_exponent = 2.7                  # open-pit haul road, beyond 1 m (assumed; fit from drive tests)
+pl_shadow_db = 6.0
+capture_db = 6.0                   # same-modulation capture threshold (Bor et al. 2016 [E28])
+beacon_payload_b = 24              # id, pose, heading, speed, status, sequence, MIC
+guardian_height_m = 8.0
+guardian_delay_ms = 15.0
+
+gnss_tau_s = { pvt = 60.0, sbas = 60.0, rtk = 10.0 }   # Gauss-Markov correlation time of the error
+gnss_outlier_per_min = 0.2         # PVT/SBAS multipath jumps near highwalls (NIOSH saw a 15 m jump [P3])
+gnss_outlier_m = [5.0, 15.0]
+gnss_outlier_s = [2.0, 5.0]
+rtk_fix_availability = 0.95        # float otherwise
+rtk_float_sigma_m = 0.30
+
+# People
+v_walk_mps = [0.5, 1.5]
+t_react_median_s = 1.5             # alerted operator; docs design value 1.5 s
+t_react_sigma_ln = 0.30            # log-normal spread -> p95 about 2.4 s
+person_radius_m = 0.30
+
+# Attendance
+finger_difficult_fraction = 0.10   # worn/dirty/cut fingers: between NIST ~2 % FTE and the ~15 % manual-labour estimate [E29]
+finger_fte_fraction = 0.02         # cannot be enrolled -> alternate credential [E29]
+frr_difficult = 0.20               # per attempt, assumed
+place_median_s = 1.2               # finger placement, log-normal
+place_sigma_ln = 0.35
+match_1to1_s = 0.05
+max_attempts = 3
+t_walk_in_s = 1.0
+t_turnstile_s = 1.2
+t_supervisor_s = 45.0
+t_alternate_credential_s = 20.0
+t_fix_strap_s = 4.0
+t_put_on_helmet_s = 6.0
+t_swap_resolution_s = 30.0
+status_query_s = 0.2               # SPU worn/self-test status over UWB or sub-GHz at the gate
+helmet_state_mix = { worn_ok = 0.925, strap_open = 0.03, carried_hand = 0.015, carried_underarm = 0.01, no_helmet = 0.01, swapped = 0.005, spu_dead = 0.005 }
+cap_threshold_pf = 2.0
+cap_electrode_mm2 = 400.0          # 20 x 20 mm electrode in the sweatband
+cap_humidity_sigma_pf = 0.15       # sweat / humidity baseline wander
+tilt_worn_max_deg = 25.0
+strap_closed_when_carried = 0.10
+vision_recall = 0.92               # camera helmet detector, from SHWD mAP@0.5 0.84-0.94 [E30]
+vision_false_alarm = 0.05
+shift_workers = 300
+arrival_window_min = [-30.0, -10.0, 0.0]   # triangular: earliest, mode, latest (relative to shift start)
+queue_spacing_m = [1.6, 2.4]       # next person in the queue, from the gate antenna
+adjacent_lane_m = [1.5, 2.5]
+own_tag_m = [0.6, 1.2]
+uhf_gate_tx_dbm = 24.0             # from the power sweep (results T2): own-tag miss <= 0.2 %, ERP 26.9 dBm

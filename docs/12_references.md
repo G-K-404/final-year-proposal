@@ -49,7 +49,7 @@ is cited from general knowledge and should be confirmed before you quote it in t
 | E16 | SubSurfaceGeoRobo dataset (Freiberg, 2024), https://doi.pangaea.de/10.1594/PANGAEA.975532 ; MIN3D dataset (2023), https://link.springer.com/article/10.1007/s41064-023-00260-0 | checked |
 | E17 | eWINE UWB LOS/NLOS dataset and code (Bregar & Mohorčič), linked from [P10] and the team survey [P17] | background |
 | E18 | Semtech AN1200.13, *LoRa Modem Designer's Guide* (time-on-air formula used in `design_calcs.py`) | background |
-| E19 | ScioSense AS3933 3-D LF wake-up receiver (15–150 kHz; 2.3 µA three-channel listening). https://www.sciosense.com/as3933-lf-receiver-ic/ ; Qorvo DW3000-family datasheets for UWB currents | checked (AS3933); DW3000 currents from distributor listings, so measure them |
+| E19 | ScioSense AS3933 3-D LF wake-up receiver (15–150 kHz; 2.3 µA three-channel listening). https://www.sciosense.com/as3933-lf-receiver-ic/ ; Qorvo DW3000-family datasheets for UWB currents | checked (AS3933); DW3000 currents now read from the DWM3000 datasheet [D1]: TX 40 mA, RX 50 mA on CH5 |
 | E20 | IEEE 802.15.4z-2020 (HRP UWB, scrambled timestamp sequence) and ISO/IEC 24730-6x (UWB RTLS) | background |
 | E21 | EMESRT PR-5A (vehicle interaction control levels 7–9) | background |
 | E22 | ETSI EN 302 065 parts 1–3 (UWB; LDC/DAA/TPC mitigation definitions referenced by [E4]) | background |
@@ -57,3 +57,28 @@ is cited from general knowledge and should be confirmed before you quote it in t
 | E24 | NVIDIA Sionna RT (ray tracing); ns-3 LoRaWAN module | background |
 | E25 | ISO 5006 (operator visibility), ISO 3450 (braking), SAE J1741 (discriminating back-up alarms), ISO 13849-1, IEC 61508, IEC 62443, ISO 16750, ISO 13766, ISO 20653, IS/IEC 60079-11 | background |
 | E26 | MSHA refuge alternatives, 30 CFR Part 7 / §75.1507 (96 h design duration) | background |
+| E27 | M. Schubert et al., "Human RCS measurements and dummy requirements for the assessment of radar-based active pedestrian safety systems," IRS 2013: Yamada's 76 GHz mean human RCS −8 dBsm (±10 dB), side aspect 5 dB below front; literature range −3 to +4.8 dBsm. https://mwt-www.e-technik.uni-ulm.de/public/papers/2013/2013_IRS_Human-RCS-Measurements_Schubert_.pdf | checked (abstract and summary) |
+| E28 | M. Bor, U. Roedig, T. Voigt, J. Alonso, "Do LoRa low-power wide-area networks scale?" ACM MSWiM 2016 (capture effect, LoRaSim) | background |
+| E29 | Fingerprint failure-to-enrol: about 2 % in the general population (NIST 2002, widely cited); manual labourers named as a high-risk group (ITU-T Focus Group Digital Financial Services); an Indian parliamentary estimate of up to 15 % FTE, disputed by UIDAI. https://itu.int/en/publications/Documents/tsb/2017-DFS-TechInnovationCompetition/files/basic-html/page56.html | checked (secondary summaries) |
+| E30 | Safety Helmet Wearing Dataset (SHWD), 7,581 images: https://github.com/njvisionpower/Safety-Helmet-Wearing-Dataset ; detectors reach mAP@0.5 ≈ 0.84 (YOLOv5, arXiv 2306.02098) to 0.94 (YOLOv8 variant, *Electronics* 13(23), 2024) | checked (abstracts) |
+
+## Component datasheets (used by the simulation in [13](13_component_simulation.md))
+
+Read from the manufacturers' documents during the simulation work (October 2026). Values are copied into
+`sim/components.toml` with the table they came from.
+
+| Key | Part | Document | Values used |
+|---|---|---|---|
+| D1 | Qorvo DWM3000 UWB module | *DWM3000 Data Sheet*, Rev B, May 2021 | CH5/CH9, 500 MHz, −41.3 dBm/MHz, currents (TX 40 mA, RX 50 mA, IDLE 12 mA, DEEP SLEEP 260 nA) |
+| D2 | Qorvo/Decawave DW3000 (DW3110) IC | *DW3000 Datasheet*, v1.1, 2020 | RX sensitivity −100 / −94.3 dBm/500 MHz (Table 8); link budget 86–98 dB (Table 12); ranging ±6 cm calibrated, σ 1.5 cm at −85 dBm (Table 14) |
+| D3 | ams (ScioSense) AS3932 3-D LF wake-up receiver, 110–150 kHz | *AS3932 Datasheet*, v1-83, 2015-03-02 | 100 µVrms at 125 kHz; 5.7 µA three-channel listening (1.7 µA ON/OFF 11 %); symbol rates 512–4096/s; preamble ≥ 0.8–3.5 ms |
+| D4 | TI AWR1843AOP 76–81 GHz radar | SWRS236C | EIRP 16 dBm, EINF 10 dB, IF 10 MHz, 100 MHz/µs, ±60° beam |
+| D5 | TI IWR6843AOP 60–64 GHz radar | SWRS237C (Apr 2020 – Jun 2025) | EIRP 16 dBm, EINF 9 dB, 250 MHz/µs |
+| D6 | Continental ARS 408-21 77 GHz radar | Data sheet 091018_FS_ARS_408_21_EN_HS | 0.2–250 m (±9°), 70 m (±45°), 20 m (±60°); ±0.10 m near range; cycle ≈ 72 ms; 6.6 W |
+| D7 | u-blox ZED-F9P-04B GNSS | UBX-21044850, R01, 21 Dec 2021 | PVT 1.5 m CEP, SBAS 1.0 m, RTK 0.01 m + 1 ppm CEP, RTK convergence < 10 s, 7 Hz RTK (4 constellations), 0.05 m/s |
+| D8 | Semtech SX1261/SX1262 | *SX1261/2 Data Sheet*, Rev 1.2, June 2019 | LoRa −124 dBm (SF7/125 kHz), −137 dBm (SF12); GFSK −109 dBm (38.4 kb/s); RX 4.6 mA; TX 45 mA at +14 dBm |
+| D9 | Impinj R700 RAIN RFID reader | *Impinj R700 Datasheet*, v4.1, 2021-07-15 (distributor listing for the ETSI/India variant IPJ-R700-241) | +30 dBm (PoE) / +33 dBm (PoE+); RX −92 dBm; 1,100 reads/s |
+| D10 | Impinj M730 tag chip | *Impinj M700 Series Datasheet*, v6.4, 2024 (via distributor and inlay datasheets) | read −24 dBm, write −21 dBm |
+| D11 | Hangzhou Grow R503 fingerprint module | *R503 Fingerprint Module User Manual*, v1.1, June 2019 | FAR < 0.001 %, FRR < 1 %, capture < 0.2 s, features < 0.5 s, 200 templates, 20 mA |
+| D12 | ADH-Tech GT-521F52 fingerprint module | *GT-521F Series Datasheet*, v1.6 | FAR < 0.001 %, FRR < 0.1 %, 3,000 templates, identification < 1.5 s |
+| D13 | TI FDC1004 capacitance-to-digital converter | SNOSCY5C | ±15 pF, 0.5 fF, 33.2 aF/√Hz at 100 S/s, 750 µA active |

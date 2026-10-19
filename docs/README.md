@@ -39,6 +39,9 @@ paging** downlink into every cap lamp still reach the surface.
 | Twin-referenced delta roll-call vs raw coordinates | 556 vs 24,076 bits (43× smaller): 56 s instead of 40 min at 10 b/s | [05 §8.4](05_communication.md) |
 | Infrastructure standby | 1.18 W with fibre / 0.18 W mesh-only → 113 Wh for 96 h | [05 §6.2](05_communication.md) |
 | Pilot machine unit / personal unit cost | ≈ ₹1.05 lakh / ≈ ₹6,000–8,000 at the lower half of part prices (budget ₹1.05 lakh / ₹8,000) | [11](11_bill_of_materials.md) |
+| Simulated V2P with datasheet parts (DWM3000 + AS3932 + AWR1843AOP) | 100 % of tagged at-risk workers alarmed before contact; first alarm at 14.7 m (stop zone 15 m) reversing and 52.5 m (53.2 m) at 30 km/h; untagged 98 % detected by radar | [13 §4](13_component_simulation.md) |
+| Simulated V2V at a blind bench corner (SX1262, ZED-F9P RTK) | GFSK 38.4 kb/s + OC Guardian: 100 % of conflicts warned ≥ 6 s ahead; LoRa SF7: 68 % | [13 §5](13_component_simulation.md) |
+| Simulated gate attendance, biometric + helmet | 11–12 workers/min per gate; outsider acceptance 10⁻⁵ per attempt with a helmet claim vs 3 × 10⁻³ for a 1:N search | [13 §6](13_component_simulation.md) |
 
 All computed values come from [tools/design_calcs.py](tools/design_calcs.py) and can be regenerated with
 the real SCCL fleet data.
@@ -191,12 +194,13 @@ Both.
 | 10 | [Simulation and data](10_simulation_and_data.md) | CARLA, Gazebo, RF simulation, datasets, test plan, pilot |
 | 11 | [Bill of materials](11_bill_of_materials.md) | Devices per object, evidence, costs, budget fit |
 | 12 | [References](12_references.md) | Papers and external sources, with verification status |
+| 13 | [Component simulation](13_component_simulation.md) | Exact market parts and their datasheets; every method to simulate them; V2P, V2V and biometric + helmet attendance results; the checklist of results to evaluate |
 
 ## Open decisions for the team
 
 1. **Fleet data:** replace the representative values in [tools/machine_profiles.toml](tools/machine_profiles.toml) with SCCL machine data and re-run.
 2. **DGMS (Tech.) Circular 06/2020 and IS 17055 Part 6:** get the primary text and map our KPIs to it (only vendor citations were found).
-3. **WPC:** confirm whether machine-mounted UWB anchors fall under the vehicle limits of the 2018 UWB rules; plan type approval for every radio.
+3. **WPC:** confirm whether machine-mounted UWB anchors fall under the vehicle limits of the 2018 UWB rules; plan type approval for every radio. The simulation shows what is at stake: at the −53.3 dBm/MHz vehicle limit UWB reach drops from 78 m to 19 m and two thirds of 30 km/h encounters end in contact ([13 §4.2](13_component_simulation.md)), so low-duty-cycle operation and transmit-power control must be in the approval.
 4. **Budget:** infrastructure (RTK base, gateways, Guardians, server, dock, VTUs) is about ₹3–5 lakh and is not itemised in the proposal. The pilot machine kit leaves out thermal cameras to fit ₹1.05 lakh.
 5. **Permissions:** measurement campaigns and shadow mode at RG-1; a location-data privacy policy agreed with worker representatives.
 6. **Underground phase:** certification route (CSIR-CIMFR, DGMS), a non-gassy training gallery for the demonstrator, and rock resistivity and cover depth at refuge sites for TTE carrier selection.
